@@ -10,9 +10,10 @@ function editNav() {
 // DOM Elements
 const modalbg = document.querySelector(".bground");
 const modalBtn = document.querySelectorAll(".modal-btn");
-const modalBtnClose = document.querySelector(".close")
+const modalBtnClose = document.querySelector(".close");
 const formData = document.querySelectorAll(".formData");
-
+const submitBtn = document.querySelector(".btn-submit");
+const form = document.querySelector("form[name='reserve']");
 const formFirstName = document.getElementById("first");
 const formLastName = document.getElementById("last");
 const formEmail = document.getElementById("email");
@@ -21,27 +22,52 @@ const formNumberTournaments = document.getElementById("quantity");
 const formLocations = document.getElementsByName("location");
 const formConditions = document.getElementById("checkbox1");
 
-// Launch modal event
+// Events for opening and closing the modal 
 modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
+modalBtnClose.addEventListener("click", closeModal);
+
+// Events for the validation of the form
+formFirstName.addEventListener("blur", function () { validateName(0, formFirstName) });
+formLastName.addEventListener("blur", function () { validateName(1, formLastName) });
+formEmail.addEventListener("blur", function () { validateEmail() });
+formBirthdate.addEventListener("blur", function () { validateBirthdate() });
+formNumberTournaments.addEventListener("blur", function () { validateNumberTournaments() });
+formConditions.addEventListener("change", function () { validateConditions() });
 
 // Launch modal form
 function launchModal() {
   modalbg.style.display = "block";
 }
 
-// Close modal event
-modalBtnClose.addEventListener("click", closeModal);
-
 // Close modal form
 function closeModal() {
   modalbg.style.display = "none";
 }
 
+// Close validation message
+function closeValidation() {
+
+  closeModal();
+
+  const validationMessage = document.querySelector(".validation");
+  const validationMessageBtn = document.querySelector(".btn-close");
+  const confirmationContent = document.querySelector(".modal-validation");
+
+  validationMessage.remove();
+  validationMessageBtn.remove();
+  confirmationContent.remove();
+
+  formData.forEach((element) => (element.style.display = "block"));
+  submitBtn.style.display = "block";
+
+  form.reset();
+}
+
 // Validation of all the inputs in the form before the submission
-function validate() {
-  
-  const firstNameValid = validateName(formFirstName, document.getElementById("error-first"));
-  const lastNameValid = validateName(formLastName, document.getElementById("error-last"));
+function validate(event) {
+
+  const firstNameValid = validateName(0, formFirstName);
+  const lastNameValid = validateName(1, formLastName);
   const emailValid = validateEmail();
   const birthdateValid = validateBirthdate();
   const numberTournamentValid = validateNumberTournaments();
@@ -51,47 +77,40 @@ function validate() {
   if (!firstNameValid || !lastNameValid || !emailValid || !birthdateValid || !numberTournamentValid || !locationValid || !conditionsValid) {
     return false;
   }
+
+  showValidation();
+  event.preventDefault();
 }
 
-// Event listeners for the validation of the inputs
-formFirstName.addEventListener("blur",function() {validateName(formFirstName, document.getElementById("error-first"))});
-formLastName.addEventListener("blur", function() {validateName(formLastName, document.getElementById("error-last"))});
-formEmail.addEventListener("blur",function() {validateEmail()});
-formBirthdate.addEventListener("blur",function() {validateBirthdate()});
-formNumberTournaments.addEventListener("blur",function() {validateNumberTournaments()});
-formConditions.addEventListener("change",function() {validateConditions()});
-
 // Validation of the first name input
-
-function validateName(formName, errorFormName) {
+function validateName(index, formName) {
 
   const nameRegExp = new RegExp("^[a-zA-Zàâäéèêëîïìôöòûüùç,.'-]+$");
 
   if (formName.value.length < 2 || !nameRegExp.test(formName.value)) {
-    errorFormName.style.display = "block";
-    errorFormName.innerHTML = "Veuillez saisir au minimum 2 caractères.";
+    formData[index].dataset.error = "Veuillez saisir au minimum 2 caractères.";
+    formData[index].dataset.errorVisible = "true";
     return false;
   } else {
-    errorFormName.style.display = "none";
-    errorFormName.innerHTML = "";
+    delete formData[index].dataset.error;
+    delete formData[index].dataset.errorVisible;
     return true;
   }
-  
+
 }
 
 // Validation of the email input
 function validateEmail() {
 
   const emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$");
-  const errorEmail = document.getElementById("error-email");
 
   if (formEmail.value === "" || !emailRegExp.test(formEmail.value)) {
-    errorEmail.style.display = "block";
-    errorEmail.innerHTML = "Veuillez saisir une adresse e-mail valide.";
+    formData[2].dataset.error = "Veuillez saisir une adresse e-mail valide.";
+    formData[2].dataset.errorVisible = "true";
     return false;
   } else {
-    errorEmail.style.display = "none";
-    errorEmail.innerHTML = "";
+    delete formData[2].dataset.error;
+    delete formData[2].dataset.errorVisible;
     return true;
   }
 }
@@ -99,17 +118,16 @@ function validateEmail() {
 // Validation of the birthdate input
 function validateBirthdate() {
 
-  const errorBirthdate = document.getElementById("error-birthdate");
   const today = new Date();
   const birthdate = new Date(formBirthdate.value);
 
   if (formBirthdate.value == "" || birthdate > today) {
-    errorBirthdate.style.display = "block";
-    errorBirthdate.innerHTML = "Veuillez saisir votre date de naissance valide au format JJ/MM/AAAA.";
+    formData[3].dataset.error = "Veuillez saisir votre date de naissance valide au format JJ/MM/AAAA.";
+    formData[3].dataset.errorVisible = "true";
     return false;
   } else {
-    errorBirthdate.style.display = "none";
-    errorBirthdate.innerHTML = "";
+    delete formData[3].dataset.error;
+    delete formData[3].dataset.errorVisible;
     return true;
   }
 }
@@ -117,22 +135,19 @@ function validateBirthdate() {
 // Validation of the number of tournaments input
 function validateNumberTournaments() {
 
-  const errorNumberTournaments = document.getElementById("error-quantity");
-
   if (formNumberTournaments.value === "" || formNumberTournaments.value < 0 || formNumberTournaments.value > 99 || !Number.isInteger(+formNumberTournaments.value)) {
-    errorNumberTournaments.style.display = "block";
-    errorNumberTournaments.innerHTML = "Veuillez saisir votre nombre de tournois effectués (0 min et 99 max)";
+    formData[4].dataset.error = "Veuillez saisir votre nombre de tournois effectués (0 min et 99 max)";
+    formData[4].dataset.errorVisible = "true";
     return false;
   } else {
-    errorNumberTournaments.style.display = "none";
-    errorNumberTournaments.innerHTML = "";
+    delete formData[4].dataset.error;
+    delete formData[4].dataset.errorVisible;
     return true;
   }
 }
 
+// Validation of the locations input
 function validateLocations() {
-
-  const errorLocation = document.getElementById("error-location");
 
   let btnLocationChecked = false;
 
@@ -144,12 +159,12 @@ function validateLocations() {
     i++;
   }
   if (!btnLocationChecked) {
-    errorLocation.style.display = "block";
-    errorLocation.innerHTML = "Veuillez saisir une ville.";
+    formData[5].dataset.error = "Veuillez saisir une ville.";
+    formData[5].dataset.errorVisible = "true";
     return false;
   } else {
-    errorLocation.style.display = "none";
-    errorLocation.innerHTML = "";
+    delete formData[5].dataset.error;
+    delete formData[5].dataset.errorVisible;
     return true;
   }
 }
@@ -157,15 +172,39 @@ function validateLocations() {
 // Validation of the conditions input
 function validateConditions() {
 
-  const errorConditions = document.getElementById("error-checkbox1");
-
   if (!formConditions.checked) {
-    errorConditions.style.display = "block";
-    errorConditions.innerHTML = "Vous devez acceptés les conditions d'utilisations.";
+    formData[6].dataset.error = "Vous devez acceptés les conditions d'utilisations.";
+    formData[6].dataset.errorVisible = "true";
     return false;
   } else {
-    errorConditions.style.display = "none";
-    errorConditions.innerHTML = "";
+    delete formData[6].dataset.error;
+    delete formData[6].dataset.errorVisible;
     return true;
   }
+}
+
+// Display the validation message after the submission of the form
+function showValidation() {
+
+  formData.forEach((element) => (element.style.display = "none"));
+  submitBtn.style.display = "none";
+
+  const validationMessage = document.createElement("p");
+  validationMessage.className = "validation";
+  validationMessage.innerHTML = "Merci pour votre inscription.";
+
+  const validationMessageBtn = document.createElement("button");
+  validationMessageBtn.className = "btn-close";
+  validationMessageBtn.innerText = "Fermer";
+
+  const confirmationContent = document.createElement("div");
+  confirmationContent.className = "modal-validation";
+  confirmationContent.appendChild(validationMessage);
+  confirmationContent.appendChild(validationMessageBtn);
+
+  const modalbody = document.getElementsByClassName("modal-body");
+  modalbody[0].appendChild(confirmationContent);
+
+  const closeBtn = document.querySelector(".btn-close");
+  closeBtn.addEventListener("click", closeValidation);
 }
