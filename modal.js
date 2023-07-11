@@ -27,8 +27,8 @@ modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
 modalBtnClose.addEventListener("click", closeModal);
 
 // Events for the validation of the form
-formFirstName.addEventListener("blur", function () { validateName(0, formFirstName) });
-formLastName.addEventListener("blur", function () { validateName(1, formLastName) });
+formFirstName.addEventListener("blur", function () { validateName("first") });
+formLastName.addEventListener("blur", function () { validateName("last") });
 formEmail.addEventListener("blur", function () { validateEmail() });
 formBirthdate.addEventListener("blur", function () { validateBirthdate() });
 formNumberTournaments.addEventListener("blur", function () { validateNumberTournaments() });
@@ -66,8 +66,8 @@ function closeValidation() {
 // Validation of all the inputs in the form before the submission
 function validate(event) {
 
-  const firstNameValid = validateName(0, formFirstName);
-  const lastNameValid = validateName(1, formLastName);
+  const firstNameValid = validateName("first");
+  const lastNameValid = validateName("last");
   const emailValid = validateEmail();
   const birthdateValid = validateBirthdate();
   const numberTournamentValid = validateNumberTournaments();
@@ -83,9 +83,11 @@ function validate(event) {
 }
 
 // Validation of the first name input
-function validateName(index, formName) {
+function validateName(elementId) {
 
   const nameRegExp = new RegExp("^[a-zA-Zàâäéèêëîïìôöòûüùç,.'-]+$");
+  const formName = document.getElementById(elementId);
+  const index = elementId === "first" ? 0 : 1;
 
   if (formName.value.length < 2 || !nameRegExp.test(formName.value)) {
     formData[index].dataset.error = "Veuillez saisir au minimum 2 caractères.";
