@@ -553,10 +553,19 @@ footer {
   .topnav a.icon:hover {
     background-color: #fff;
   }
-  .hero-content{
+  .hero-content {
     min-width: unset;
     padding: unset;
     text-align: left;
+  }
+
+  .hero-headline {
+    font-size: 40px;
+  }
+
+  .hero-text {
+    font-size: 14px;
+    margin-top: 24px;
   }
 } 
 
